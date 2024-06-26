@@ -223,14 +223,14 @@ const currentQuizEl = document.querySelector(".current-quiz p");
 const questionContainer = document.querySelector(".question-container");
 const nextBtn = document.querySelector(".next-btn");
 
-let currentQuiz = 24;
+let currentQuiz = 0;
 let quizTimer = 30;
 let selectionCount = 0;
 let interval;
 
 currentQuizEl.innerText = `${
   currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-}/${quizQuestions.length}`;
+}/${quizQuestions.length - 1}`;
 
 function correctIcon() {
   const correctIcon = document.createElement("img");
@@ -257,15 +257,23 @@ function pauseAudio() {
   audio.pause();
   audio.currentTime = 10;
 }
+volumeIcon.addEventListener("click", () => {
+  volumeIcon.classList.toggle("volume");
+
+  if (volumeIcon.classList.contains("volume")) {
+    playAudio();
+  } else {
+    pauseAudio();
+  }
+});
 function updateTimer() {
   quizTimerEl.innerText = `00:${
     quizTimer-- < 10 ? "0" + quizTimer : quizTimer
   }`;
   if (quizTimer <= 0) {
-    clearInterval(interval);
-    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz - 1;
-    updateQuiz();
+    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
     resetTimer();
+    updateQuiz();
     questions.forEach((question) => {
       question.classList.remove("correct");
       question.classList.remove("wrong");
@@ -276,16 +284,6 @@ function updateTimer() {
     document.body.classList.add("over-time");
   }
 }
-
-volumeIcon.addEventListener("click", () => {
-  volumeIcon.classList.toggle("volume");
-
-  if (volumeIcon.classList.contains("volume")) {
-    playAudio();
-  } else {
-    pauseAudio();
-  }
-});
 
 startBtn.addEventListener("click", () => {
   mainSection.classList.add("active");
@@ -309,7 +307,7 @@ questionContainer.addEventListener("click", (e) => {
         if (selectionCount <= 1) {
           e.target.classList.add("correct");
           e.target.appendChild(correctIcon());
-          clearInterval(interval);
+          interval = null;
         }
       }
     } else {
@@ -318,7 +316,7 @@ questionContainer.addEventListener("click", (e) => {
         if (selectionCount <= 1) {
           e.target.classList.add("wrong");
           e.target.appendChild(wrongIcon());
-          clearInterval(interval);
+          interval = null;
           if (e.target.id !== quizQuestions[currentQuiz].correct) {
             questions.forEach((question) => {
               if (quizQuestions[currentQuiz].correct === question.id) {
@@ -337,11 +335,11 @@ function updateQuiz() {
   if (currentQuiz < quizQuestions.length) {
     questions.forEach((question) => {
       let questionId = question.id;
+      questionText.innerText = quizQuestions[currentQuiz].question;
       question.innerText = quizQuestions[currentQuiz][questionId];
     });
-    currentQuiz++;
+    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
   }
-  // questionText.innerText = quizQuestions[currentQuiz].question;
 
   questions.forEach((question) => {
     selectionCount = 0;
@@ -355,10 +353,12 @@ function resetTimer() {
   quizTimerEl.innerText = `00:${
     --quizTimer < 10 ? "0" + quizTimer : quizTimer
   }`;
-  interval = setInterval(updateTimer, 300);
+  if (!interval) {
+    interval = setInterval(updateTimer, 300);
+  }
   currentQuizEl.innerText = `${
     currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-  }/${quizQuestions.length}`;
+  }/${quizQuestions.length - 1}`;
   document.body.classList.remove("half-time");
   document.body.classList.remove("over-time");
 }
@@ -366,4 +366,7 @@ function resetTimer() {
 nextBtn.addEventListener("click", () => {
   updateQuiz();
   resetTimer();
+  if (quizQuestions.length === currentQuiz) {
+    console.log("object");
+  }
 });

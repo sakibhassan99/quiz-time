@@ -227,6 +227,7 @@ let currentQuiz = 0;
 let quizTimer = 30;
 let selectionCount = 0;
 let interval;
+let intervalCount = 0;
 
 currentQuizEl.innerText = `${
   currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
@@ -295,7 +296,7 @@ startBtn.addEventListener("click", () => {
     question.innerText = quizQuestions[currentQuiz][questionId];
   });
 
-  interval = setInterval(updateTimer, 300);
+  interval = setInterval(updateTimer, 1000);
 });
 
 questionContainer.addEventListener("click", (e) => {
@@ -307,7 +308,8 @@ questionContainer.addEventListener("click", (e) => {
         if (selectionCount <= 1) {
           e.target.classList.add("correct");
           e.target.appendChild(correctIcon());
-          interval = null;
+          clearInterval(interval);
+          intervalCount = 0;
         }
       }
     } else {
@@ -316,7 +318,8 @@ questionContainer.addEventListener("click", (e) => {
         if (selectionCount <= 1) {
           e.target.classList.add("wrong");
           e.target.appendChild(wrongIcon());
-          interval = null;
+          clearInterval(interval);
+          intervalCount = 0;
           if (e.target.id !== quizQuestions[currentQuiz].correct) {
             questions.forEach((question) => {
               if (quizQuestions[currentQuiz].correct === question.id) {
@@ -353,9 +356,10 @@ function resetTimer() {
   quizTimerEl.innerText = `00:${
     --quizTimer < 10 ? "0" + quizTimer : quizTimer
   }`;
-  if (!interval) {
-    interval = setInterval(updateTimer, 300);
+  if (intervalCount === 1) {
+    interval = setInterval(updateTimer, 1000);
   }
+  intervalCount = 1;
   currentQuizEl.innerText = `${
     currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
   }/${quizQuestions.length - 1}`;

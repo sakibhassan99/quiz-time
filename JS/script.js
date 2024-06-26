@@ -219,13 +219,18 @@ const audio = new Audio("/assets/audio/music.mp3");
 const questions = document.querySelectorAll(".question");
 const questionText = document.querySelector("#question_text");
 const quizTimerEl = document.querySelector(".quiz-time p");
+const currentQuizEl = document.querySelector(".current-quiz p");
 const questionContainer = document.querySelector(".question-container");
 const nextBtn = document.querySelector(".next-btn");
 
-let currentQuiz = 0;
+let currentQuiz = 24;
 let quizTimer = 30;
 let selectionCount = 0;
 let interval;
+
+currentQuizEl.innerText = `${
+  currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
+}/${quizQuestions.length}`;
 
 function correctIcon() {
   const correctIcon = document.createElement("img");
@@ -254,12 +259,13 @@ function pauseAudio() {
 }
 function updateTimer() {
   quizTimerEl.innerText = `00:${
-    --quizTimer < 10 ? "0" + quizTimer : quizTimer
+    quizTimer-- < 10 ? "0" + quizTimer : quizTimer
   }`;
   if (quizTimer <= 0) {
     clearInterval(interval);
-    currentQuiz++;
+    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz - 1;
     updateQuiz();
+    resetTimer();
     questions.forEach((question) => {
       question.classList.remove("correct");
       question.classList.remove("wrong");
@@ -271,19 +277,6 @@ function updateTimer() {
   }
 }
 
-startBtn.addEventListener("click", () => {
-  mainSection.classList.add("active");
-  document.body.classList.add("full-time");
-
-  questionText.innerText = quizQuestions[currentQuiz].question;
-  questions.forEach((question) => {
-    let questionId = question.id;
-    question.innerText = quizQuestions[currentQuiz][questionId];
-  });
-
-  interval = setInterval(updateTimer, 1000);
-});
-
 volumeIcon.addEventListener("click", () => {
   volumeIcon.classList.toggle("volume");
 
@@ -294,11 +287,23 @@ volumeIcon.addEventListener("click", () => {
   }
 });
 
+startBtn.addEventListener("click", () => {
+  mainSection.classList.add("active");
+  document.body.classList.add("full-time");
+
+  questionText.innerText = quizQuestions[currentQuiz].question;
+  questions.forEach((question) => {
+    let questionId = question.id;
+    question.innerText = quizQuestions[currentQuiz][questionId];
+  });
+
+  interval = setInterval(updateTimer, 300);
+});
+
 questionContainer.addEventListener("click", (e) => {
   if (e.target.tagName === "LI") {
     const selectedId = e.target.id;
     if (quizQuestions[currentQuiz].correct === selectedId) {
-      console.log("object");
       if (!e.target.classList.contains("correct")) {
         selectionCount++;
         if (selectionCount <= 1) {
@@ -314,6 +319,14 @@ questionContainer.addEventListener("click", (e) => {
           e.target.classList.add("wrong");
           e.target.appendChild(wrongIcon());
           clearInterval(interval);
+          if (e.target.id !== quizQuestions[currentQuiz].correct) {
+            questions.forEach((question) => {
+              if (quizQuestions[currentQuiz].correct === question.id) {
+                question.classList.add("correct");
+                question.appendChild(correctIcon());
+              }
+            });
+          }
         }
       }
     }
@@ -321,20 +334,36 @@ questionContainer.addEventListener("click", (e) => {
 });
 
 function updateQuiz() {
-  questionText.innerText = quizQuestions[currentQuiz].question;
-  questions.forEach((question) => {
-    let questionId = question.id;
-    question.innerText = quizQuestions[currentQuiz][questionId];
-  });
   if (currentQuiz < quizQuestions.length) {
+    questions.forEach((question) => {
+      let questionId = question.id;
+      question.innerText = quizQuestions[currentQuiz][questionId];
+    });
     currentQuiz++;
   }
+  // questionText.innerText = quizQuestions[currentQuiz].question;
+
   questions.forEach((question) => {
+    selectionCount = 0;
     question.classList.remove("correct");
     question.classList.remove("wrong");
   });
 }
 
+function resetTimer() {
+  quizTimer = 30;
+  quizTimerEl.innerText = `00:${
+    --quizTimer < 10 ? "0" + quizTimer : quizTimer
+  }`;
+  interval = setInterval(updateTimer, 300);
+  currentQuizEl.innerText = `${
+    currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
+  }/${quizQuestions.length}`;
+  document.body.classList.remove("half-time");
+  document.body.classList.remove("over-time");
+}
+
 nextBtn.addEventListener("click", () => {
   updateQuiz();
+  resetTimer();
 });

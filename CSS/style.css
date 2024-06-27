@@ -362,6 +362,35 @@ body.result-page {
     margin-top: 30px;
 }
 
+.icons-container {
+    margin-top: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.icons-container p {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 36px;
+    text-align: left;
+    color: #535353;
+}
+
+.icons-container .icons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+}
+
+.icons-container .icons img {
+    cursor: pointer;
+    width: 30px;
+}
+
+
 /* Result Page Section End */
 
 
@@ -468,6 +497,10 @@ body.result-page {
 
     .result-bar-container {
         height: 85px;
+    }
+
+    .icons-container {
+        margin-top: 3rem;
     }
 }
 

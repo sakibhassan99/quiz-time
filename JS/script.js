@@ -220,6 +220,7 @@ const questions = document.querySelectorAll(".question");
 const questionText = document.querySelector("#question_text");
 const quizTimerEl = document.querySelector(".quiz-time p");
 const currentQuizEl = document.querySelector(".current-quiz p");
+const quizPageEl = document.querySelector(".quiz-page");
 const questionContainer = document.querySelector(".question-container");
 const nextBtn = document.querySelector(".next-btn");
 
@@ -267,110 +268,111 @@ volumeIcon.addEventListener("click", () => {
     pauseAudio();
   }
 });
-function updateTimer() {
-  quizTimerEl.innerText = `00:${
-    quizTimer-- < 10 ? "0" + quizTimer : quizTimer
-  }`;
-  if (quizTimer <= 0) {
-    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
-    resetTimer();
-    updateQuiz();
-    questions.forEach((question) => {
-      question.classList.remove("correct");
-      question.classList.remove("wrong");
-    });
-  } else if (quizTimer <= 15 && quizTimer > 5) {
-    document.body.classList.add("half-time");
-  } else if (quizTimer <= 5) {
-    document.body.classList.add("over-time");
-  }
-}
+// function updateTimer() {
+//   quizTimerEl.innerText = `00:${
+//     quizTimer-- < 10 ? "0" + quizTimer : quizTimer
+//   }`;
+//   if (quizTimer <= 0) {
+//     currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
+//     resetTimer();
+//     updateQuiz();
+//     questions.forEach((question) => {
+//       question.classList.remove("correct");
+//       question.classList.remove("wrong");
+//     });
+//   } else if (quizTimer <= 15 && quizTimer > 5) {
+//     document.body.classList.add("half-time");
+//   } else if (quizTimer <= 5) {
+//     document.body.classList.add("over-time");
+//   }
+// }
 
-startBtn.addEventListener("click", () => {
-  mainSection.classList.add("active");
-  document.body.classList.add("full-time");
+// startBtn.addEventListener("click", () => {
+//   mainSection.classList.add("active");
+//   document.body.classList.add("full-time");
 
-  questionText.innerText = quizQuestions[currentQuiz].question;
-  questions.forEach((question) => {
-    let questionId = question.id;
-    question.innerText = quizQuestions[currentQuiz][questionId];
-  });
+//   questionText.innerText = quizQuestions[currentQuiz].question;
+//   questions.forEach((question) => {
+//     let questionId = question.id;
+//     question.innerText = quizQuestions[currentQuiz][questionId];
+//   });
 
-  interval = setInterval(updateTimer, 1000);
-});
+//   interval = setInterval(updateTimer, 1000);
+// });
 
-questionContainer.addEventListener("click", (e) => {
-  if (e.target.tagName === "LI") {
-    const selectedId = e.target.id;
-    if (quizQuestions[currentQuiz].correct === selectedId) {
-      if (!e.target.classList.contains("correct")) {
-        selectionCount++;
-        if (selectionCount <= 1) {
-          e.target.classList.add("correct");
-          e.target.appendChild(correctIcon());
-          clearInterval(interval);
-          intervalCount = 0;
-        }
-      }
-    } else {
-      if (!e.target.classList.contains("wrong")) {
-        selectionCount++;
-        if (selectionCount <= 1) {
-          e.target.classList.add("wrong");
-          e.target.appendChild(wrongIcon());
-          clearInterval(interval);
-          intervalCount = 0;
-          if (e.target.id !== quizQuestions[currentQuiz].correct) {
-            questions.forEach((question) => {
-              if (quizQuestions[currentQuiz].correct === question.id) {
-                question.classList.add("correct");
-                question.appendChild(correctIcon());
-              }
-            });
-          }
-        }
-      }
-    }
-  }
-});
+// questionContainer.addEventListener("click", (e) => {
+//   if (e.target.tagName === "LI") {
+//     const selectedId = e.target.id;
+//     if (quizQuestions[currentQuiz].correct === selectedId) {
+//       if (!e.target.classList.contains("correct")) {
+//         selectionCount++;
+//         if (selectionCount <= 1) {
+//           e.target.classList.add("correct");
+//           e.target.appendChild(correctIcon());
+//           clearInterval(interval);
+//           intervalCount = 0;
+//         }
+//       }
+//     } else {
+//       if (!e.target.classList.contains("wrong")) {
+//         selectionCount++;
+//         if (selectionCount <= 1) {
+//           e.target.classList.add("wrong");
+//           e.target.appendChild(wrongIcon());
+//           clearInterval(interval);
+//           intervalCount = 0;
+//           if (e.target.id !== quizQuestions[currentQuiz].correct) {
+//             questions.forEach((question) => {
+//               if (quizQuestions[currentQuiz].correct === question.id) {
+//                 question.classList.add("correct");
+//                 question.appendChild(correctIcon());
+//               }
+//             });
+//           }
+//         }
+//       }
+//     }
+//   }
+// });
 
-function updateQuiz() {
-  if (currentQuiz < quizQuestions.length) {
-    questions.forEach((question) => {
-      let questionId = question.id;
-      questionText.innerText = quizQuestions[currentQuiz].question;
-      question.innerText = quizQuestions[currentQuiz][questionId];
-    });
-    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
-  }
+// function updateQuiz() {
+//   if (currentQuiz < quizQuestions.length) {
+//     questions.forEach((question) => {
+//       let questionId = question.id;
+//       questionText.innerText = quizQuestions[currentQuiz].question;
+//       question.innerText = quizQuestions[currentQuiz][questionId];
+//     });
+//     currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
+//   }
 
-  questions.forEach((question) => {
-    selectionCount = 0;
-    question.classList.remove("correct");
-    question.classList.remove("wrong");
-  });
-}
+//   questions.forEach((question) => {
+//     selectionCount = 0;
+//     question.classList.remove("correct");
+//     question.classList.remove("wrong");
+//   });
+// }
 
-function resetTimer() {
-  quizTimer = 30;
-  quizTimerEl.innerText = `00:${
-    --quizTimer < 10 ? "0" + quizTimer : quizTimer
-  }`;
-  if (intervalCount === 1) {
-    interval = setInterval(updateTimer, 1000);
-  }
-  intervalCount = 1;
-  currentQuizEl.innerText = `${
-    currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-  }/${quizQuestions.length - 1}`;
-  document.body.classList.remove("half-time");
-  document.body.classList.remove("over-time");
-}
+// function resetTimer() {
+//   quizTimer = 30;
+//   quizTimerEl.innerText = `00:${
+//     --quizTimer < 10 ? "0" + quizTimer : quizTimer
+//   }`;
+//   if (intervalCount === 1) {
+//     interval = setInterval(updateTimer, 1000);
+//   }
+//   intervalCount = 1;
+//   currentQuizEl.innerText = `${
+//     currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
+//   }/${quizQuestions.length - 1}`;
+//   document.body.classList.remove("half-time");
+//   document.body.classList.remove("over-time");
+// }
 
-nextBtn.addEventListener("click", () => {
-  updateQuiz();
-  resetTimer();
-  if (quizQuestions.length === currentQuiz) {
-    console.log("object");
-  }
-});
+// nextBtn.addEventListener("click", () => {
+//   updateQuiz();
+//   resetTimer();
+//   if (quizQuestions.length - 1 === currentQuiz) {
+//     quizPageEl.classList.add("completed");
+//     resetTimer();
+//   }
+// });

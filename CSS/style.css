@@ -301,7 +301,7 @@ body.result-page {
 .result-bar-value {
     height: 100%;
     background-color: #35BD3A;
-    width: 70%;
+    width: 0%;
     border-radius: 11px;
 }
 
@@ -499,8 +499,125 @@ body.result-page {
         height: 85px;
     }
 
+    .green-result-icon-container,
+    .red-result-icon-container {
+        top: 35px;
+    }
+
     .icons-container {
         margin-top: 3rem;
+    }
+
+    .quiz-page {
+        padding: 40px 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .quiz-page {
+        height: initial;
+        padding: 40px;
+    }
+
+    .question {
+        font-size: 14px;
+    }
+
+    #question_text {
+        font-size: 16px;
+    }
+
+    #start-btn {
+        font-size: 22px;
+    }
+
+    .result-bar-container {
+        height: 70px;
+    }
+
+    .green-result-icon-container,
+    .red-result-icon-container {
+        top: 30px;
+        right: -30px;
+    }
+
+    .red-result-icon,
+    .green-result-icon {
+        width: 50px;
+    }
+
+    .green-result-icon-container {
+        left: -30px;
+    }
+
+    .result-quote {
+        font-size: 20px;
+    }
+
+    .retry-btn {
+        font-size: 22px;
+        padding: 8px 25px;
+    }
+}
+
+@media (max-width: 568px) {
+    .quiz-page {
+        padding: 20px;
+    }
+
+    .question {
+        font-size: 13px;
+        word-break: break-word;
+        gap: 5px;
+    }
+
+    #question_text {
+        font-size: 13px;
+    }
+
+    #start-btn {
+        font-size: 17px;
+    }
+
+    .result-quote {
+        font-size: 16px;
+    }
+
+    .retry-btn {
+        font-size: 18px;
+    }
+
+    .icons-container p {
+        font-size: 15px;
+    }
+
+    .icons-container .icons img {
+        width: 22px;
+    }
+
+    .red-result-icon,
+    .green-result-icon {
+        width: 40px;
+    }
+
+    .green-result-icon-container,
+    .red-result-icon-container {
+        right: -25px;
+    }
+
+    .green-result-icon-container {
+        left: -25px;
+    }
+
+    .question.wrong img,
+    .question.correct img {
+        width: 15px;
+    }
+
+    .question.wrong div {
+        gap: 3px;
+        font-size: 10px;
+        align-items: center;
     }
 }
 

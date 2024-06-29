@@ -217,7 +217,17 @@ const quizQuestions = [
     d: "<block>",
     correct: "b",
   },
+  {
+    question:
+      "Where in an HTML document is the correct place to refer to an external style sheet?",
+    a: "In the <head> section",
+    b: "At the end of the document",
+    c: "In the <body> section",
+    d: "At the top of the document ",
+    correct: "a",
+  },
 ];
+const quizQuestionsLength = quizQuestions.length - 2;
 
 const startBtn = document.querySelector("#start-btn");
 const retryBtn = document.querySelector(".retry-btn");
@@ -235,23 +245,37 @@ const greenResultText = document.querySelector(
 );
 const redResultText = document.querySelector(".red-result-icon-container p");
 const resultScore = document.querySelector(".result-score");
+const resultBarValue = document.querySelector(".result-bar-value");
 
 let currentQuiz = 0;
 let currentTimer = 30;
 let interval;
 let selectionCount = 0;
 let correctAnswerCount = 0;
+let redResultScore = 100;
 
 quizTimerEl.innerText = `00:${
   currentTimer < 10 ? "0" + currentTimer : currentTimer
 }`;
 currentQuizEl.innerText = `${
   currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-}/${quizQuestions.length - 1}`;
+}/${quizQuestions.length - 2}`;
 
 resultScore.innerText = `${
   correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
-}/${quizQuestions.length - 1}`;
+}/${quizQuestions.length - 2}`;
+
+greenResultText.innerText = `${
+  (correctAnswerCount / quizQuestionsLength) * 100
+}%`;
+
+redResultText.innerText = `${
+  redResultScore - parseInt(greenResultText.innerText)
+}%`;
+
+resultBarValue.style.width = `${
+  (correctAnswerCount / quizQuestionsLength) * 100
+}%`;
 
 function customInterval(func, time) {
   clearTimeout(interval);
@@ -314,13 +338,26 @@ function updateQuiz() {
     });
     questionText.innerText = quizQuestions[currentQuiz].question;
     currentQuiz++;
+
     currentQuizEl.innerText = `${
       currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-    }/${quizQuestions.length - 1}`;
+    }/${quizQuestions.length - 2}`;
 
     resultScore.innerText = `${
       correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
-    }/${quizQuestions.length - 1}`;
+    }/${quizQuestions.length - 2}`;
+
+    greenResultText.innerText = `${
+      (correctAnswerCount / quizQuestionsLength) * 100
+    }%`;
+
+    redResultText.innerText = `${
+      redResultScore - parseInt(greenResultText.innerText)
+    }%`;
+
+    resultBarValue.style.width = `${
+      (correctAnswerCount / quizQuestionsLength) * 100
+    }%`;
 
     selectionCount = 0;
     questions.forEach((question) => {
@@ -365,9 +402,6 @@ nextBtn.addEventListener("click", () => {
     updateQuiz();
     resetTimer();
   }
-  resultScore.innerText = `${
-    correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
-  }/${quizQuestions.length - 1}`;
 });
 
 retryBtn.addEventListener("click", () => {

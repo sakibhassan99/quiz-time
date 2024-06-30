@@ -217,30 +217,71 @@ const quizQuestions = [
     d: "<block>",
     correct: "b",
   },
+  {
+    question:
+      "Where in an HTML document is the correct place to refer to an external style sheet?",
+    a: "In the <head> section",
+    b: "At the end of the document",
+    c: "In the <body> section",
+    d: "At the top of the document ",
+    correct: "a",
+  },
 ];
+const quizQuestionsLength = quizQuestions.length - 2;
 
 const startBtn = document.querySelector("#start-btn");
-const mainSection = document.querySelector(".main");
-const volumeIcon = document.querySelector(".volume-icon-container");
-const footerText = document.querySelector(".footer-text");
-const audio = new Audio("/assets/audio/music.mp3");
-const questions = document.querySelectorAll(".question");
-const questionText = document.querySelector("#question_text");
-const quizTimerEl = document.querySelector(".quiz-time p");
-const currentQuizEl = document.querySelector(".current-quiz p");
-const quizPageEl = document.querySelector(".quiz-page");
-const questionContainer = document.querySelector(".question-container");
+const retryBtn = document.querySelector(".retry-btn");
 const nextBtn = document.querySelector(".next-btn");
+const mainSection = document.querySelector("body > .main");
+const audio = new Audio("/assets/audio/music.mp3");
+const volumeIcon = document.querySelector(".volume-icon-container");
+const currentQuizEl = document.querySelector(".current-quiz p");
+const quizTimerEl = document.querySelector(".quiz-time p");
+const questionText = document.querySelector("#question_text");
+const questions = document.querySelectorAll(".question");
+const questionContainer = document.querySelector(".question-container");
+const greenResultText = document.querySelector(
+  ".green-result-icon-container p"
+);
+const redResultText = document.querySelector(".red-result-icon-container p");
+const resultScore = document.querySelector(".result-score");
+const resultBarValue = document.querySelector(".result-bar-value");
+const alreadyPlayedScore = document.querySelector(".already-played-score");
 
-let currentQuiz = 0;
-let quizTimer = 30;
-let selectionCount = 0;
+let currentQuiz = getLocalStorage("currentQuiz") || 0;
+let currentTimer = 30;
 let interval;
-let intervalCount = 0;
+let selectionCount = 0;
+let correctAnswerCount = getLocalStorage("correctAnswerCount") || 0;
+let redResultScore = 100;
 
+quizTimerEl.innerText = `00:${
+  currentTimer < 10 ? "0" + currentTimer : currentTimer
+}`;
 currentQuizEl.innerText = `${
   currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-}/${quizQuestions.length - 1}`;
+}/${quizQuestions.length - 2}`;
+
+resultScore.innerText = `${
+  correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
+}/${quizQuestions.length - 2}`;
+
+greenResultText.innerText = `${
+  (correctAnswerCount / quizQuestionsLength) * 100
+}%`;
+
+redResultText.innerText = `${
+  redResultScore - parseInt(greenResultText.innerText)
+}%`;
+
+resultBarValue.style.width = `${
+  (correctAnswerCount / quizQuestionsLength) * 100
+}%`;
+
+function customInterval(func, time) {
+  clearTimeout(interval);
+  interval = setInterval(func, time);
+}
 
 function correctIcon() {
   const correctIcon = document.createElement("img");
@@ -248,6 +289,7 @@ function correctIcon() {
 
   return correctIcon;
 }
+
 function wrongIcon() {
   const wrongIcon = document.createElement("img");
   wrongIcon.src = "assets/images/wrong.svg";
@@ -258,18 +300,100 @@ function wrongIcon() {
 
   return wrongContainer;
 }
+
 function playAudio() {
   audio.play();
   audio.volume = 0.2;
   audio.currentTime = 10;
 }
+
 function pauseAudio() {
   audio.pause();
   audio.currentTime = 10;
 }
+
+function updateTimer() {
+  currentTimer > 0 ? currentTimer-- : currentTimer;
+
+  quizTimerEl.innerText = `00:${
+    currentTimer < 10 ? "0" + currentTimer : currentTimer
+  }`;
+
+  if (currentTimer <= 0) {
+    resetTimer();
+    updateQuiz();
+  } else if (currentTimer <= 15 && currentTimer < 5) {
+    document.body.classList.add("half-time");
+  }
+
+  if (currentTimer <= 5) {
+    document.body.classList.add("over-time");
+  }
+}
+
+function updateQuiz() {
+  if (currentQuiz < quizQuestions.length - 1) {
+    questions.forEach((question) => {
+      let questionId = question.id;
+      question.innerText = quizQuestions[currentQuiz][questionId];
+    });
+    questionText.innerText = quizQuestions[currentQuiz].question;
+    setLocalStorage("currentQuiz", currentQuiz);
+    currentQuiz++;
+
+    currentQuizEl.innerText = `${
+      currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
+    }/${quizQuestions.length - 2}`;
+
+    resultScore.innerText = `${
+      correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
+    }/${quizQuestions.length - 2}`;
+
+    greenResultText.innerText = `${
+      (correctAnswerCount / quizQuestionsLength) * 100
+    }%`;
+
+    redResultText.innerText = `${
+      redResultScore - parseInt(greenResultText.innerText)
+    }%`;
+
+    resultBarValue.style.width = `${
+      (correctAnswerCount / quizQuestionsLength) * 100
+    }%`;
+
+    selectionCount = 0;
+    questions.forEach((question) => {
+      question.classList.remove("correct");
+      question.classList.remove("wrong");
+    });
+  }
+}
+updateQuiz();
+
+function resetTimer() {
+  currentTimer = 30;
+  customInterval(updateTimer, 1000);
+  quizTimerEl.innerText = `00:${
+    currentTimer < 10 ? "0" + currentTimer : currentTimer
+  }`;
+  document.body.classList.remove("half-time");
+  document.body.classList.remove("over-time");
+  if (currentQuiz === quizQuestions.length - 1) {
+    clearInterval(interval);
+    mainSection.classList.add("completed");
+  }
+}
+
+function setLocalStorage(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getLocalStorage(key) {
+  return localStorage.getItem(key);
+}
+
 volumeIcon.addEventListener("click", () => {
   volumeIcon.classList.toggle("volume");
-
   if (volumeIcon.classList.contains("volume")) {
     playAudio();
   } else {
@@ -277,49 +401,50 @@ volumeIcon.addEventListener("click", () => {
   }
 });
 
-function updateTimer() {
-  quizTimerEl.innerText = `00:${
-    quizTimer-- < 10 ? "0" + quizTimer : quizTimer
-  }`;
-  if (quizTimer <= 0) {
-    currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
-    resetTimer();
-    updateQuiz();
-    questions.forEach((question) => {
-      question.classList.remove("correct");
-      question.classList.remove("wrong");
-    });
-  } else if (quizTimer <= 15 && quizTimer > 5) {
-    document.body.classList.add("half-time");
-  } else if (quizTimer <= 5) {
-    document.body.classList.add("over-time");
+startBtn.addEventListener("click", () => {
+  mainSection.classList.add("active");
+  document.body.classList.add("full-time");
+  customInterval(updateTimer, 1000);
+
+  if (currentQuiz === quizQuestions.length - 1) {
+    clearInterval(interval);
+    mainSection.classList.add("completed");
   }
-}
+});
 
-// startBtn.addEventListener("click", () => {
-//   mainSection.classList.add("active");
-//   document.body.classList.add("full-time");
+nextBtn.addEventListener("click", () => {
+  if (selectionCount) {
+    updateQuiz();
+    resetTimer();
+  }
+});
 
-//   questionText.innerText = quizQuestions[currentQuiz].question;
-//   questions.forEach((question) => {
-//     let questionId = question.id;
-//     question.innerText = quizQuestions[currentQuiz][questionId];
-//   });
-
-//   interval = setInterval(updateTimer, 1000);
-// });
+retryBtn.addEventListener("click", () => {
+  mainSection.classList.remove("active", "completed");
+  document.body.classList.remove("full-time");
+  alreadyPlayedScore.style.display = "block";
+  alreadyPlayedScore.innerText = `Highest Score: ${
+    correctAnswerCount < 10 ? "0" + correctAnswerCount : correctAnswerCount
+  }/${quizQuestions.length - 2}`;
+  currentQuiz = 0;
+  correctAnswerCount = 0;
+  setLocalStorage("correctAnswerCount", correctAnswerCount);
+  updateQuiz();
+  pauseAudio();
+});
 
 questionContainer.addEventListener("click", (e) => {
   if (e.target.tagName === "LI") {
-    const selectedId = e.target.id;
-    if (quizQuestions[currentQuiz].correct === selectedId) {
+    let selectedId = e.target.id;
+    if (selectedId === quizQuestions[currentQuiz - 1].correct) {
       if (!e.target.classList.contains("correct")) {
         selectionCount++;
         if (selectionCount <= 1) {
           e.target.classList.add("correct");
           e.target.appendChild(correctIcon());
           clearInterval(interval);
-          intervalCount = 0;
+          correctAnswerCount++;
+          setLocalStorage("correctAnswerCount", correctAnswerCount);
         }
       }
     } else {
@@ -329,10 +454,9 @@ questionContainer.addEventListener("click", (e) => {
           e.target.classList.add("wrong");
           e.target.appendChild(wrongIcon());
           clearInterval(interval);
-          intervalCount = 0;
-          if (e.target.id !== quizQuestions[currentQuiz].correct) {
+          if (selectedId !== quizQuestions[currentQuiz - 1].correct) {
             questions.forEach((question) => {
-              if (quizQuestions[currentQuiz].correct === question.id) {
+              if (question.id === quizQuestions[currentQuiz - 1].correct) {
                 question.classList.add("correct");
                 question.appendChild(correctIcon());
               }
@@ -343,45 +467,3 @@ questionContainer.addEventListener("click", (e) => {
     }
   }
 });
-
-// function updateQuiz() {
-//   if (currentQuiz < quizQuestions.length) {
-//     questions.forEach((question) => {
-//       let questionId = question.id;
-//       questionText.innerText = quizQuestions[currentQuiz].question;
-//       question.innerText = quizQuestions[currentQuiz][questionId];
-//     });
-//     currentQuiz < quizQuestions.length - 1 ? currentQuiz++ : currentQuiz;
-//   }
-
-//   questions.forEach((question) => {
-//     selectionCount = 0;
-//     question.classList.remove("correct");
-//     question.classList.remove("wrong");
-//   });
-// }
-
-// function resetTimer() {
-//   quizTimer = 30;
-//   quizTimerEl.innerText = `00:${
-//     --quizTimer < 10 ? "0" + quizTimer : quizTimer
-//   }`;
-//   if (intervalCount === 1) {
-//     interval = setInterval(updateTimer, 1000);
-//   }
-//   intervalCount = 1;
-//   currentQuizEl.innerText = `${
-//     currentQuiz < 10 ? "0" + currentQuiz : currentQuiz
-//   }/${quizQuestions.length - 1}`;
-//   document.body.classList.remove("half-time");
-//   document.body.classList.remove("over-time");
-// }
-
-// nextBtn.addEventListener("click", () => {
-//   updateQuiz();
-//   resetTimer();
-//   if (quizQuestions.length - 1 === currentQuiz) {
-//     quizPageEl.classList.add("completed");
-//     resetTimer();
-//   }
-// });
